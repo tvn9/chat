@@ -1,2 +1,2 @@
 # Go Web Programming
-Build a simple Chat App  
+Building a simple Chat App  
