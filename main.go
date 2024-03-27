@@ -2,25 +2,8 @@ package main
 
 import (
 	"net/http"
-	"text/template"
+	"time"
 )
-
-func index(w http.ResponseWriter, r *http.Request) {
-	threads, err := data.Threads()
-	if err == nil {
-		_, err := session(w, r)
-		publicTmplFiles := []string{"templates/layout.html", "templates/public.navbar.html", "templates/index.html"}
-		privateTmplFiles := []string{"templates/layout.html", "templates/private.navbar.html", "templates/index.html"}
-
-		var tmpl *template.Template
-		if err != nil {
-			tmpl = template.Must(template.ParseFiles(privateTmplFiles...))
-		} else {
-			tmpl = template.Must(template.ParseFiles(publicTmplFiles...))
-		}
-		tmpl.ExecuteTemplate(w, "layout", threads)
-	}
-}
 
 func main() {
 
@@ -44,9 +27,13 @@ func main() {
 	mux.HandleFunc("/thread/post", postThread)
 	mux.HandleFunc("/thread/read", readThread)
 
+	// starting up the server
 	server := &http.Server{
-		Addr:    "0.0.0.0:8080",
-		Handler: mux,
+		Addr:           "0.0.0.0:8080",
+		Handler:        mux,
+		ReadTimeout:    time.Duration(config.ReadTimeout * int64(time.Second)),
+		WriteTimeout:   time.Duration(config.WriteTimeout * int64(time.Second)),
+		MaxHeaderBytes: 1 << 20,
 	}
 	server.ListenAndServe()
 }
